@@ -186,11 +186,15 @@ function Add-ADFSTkSPRelyingPartyTrust {
 
     ### MOD IDEM  End ###
 
+    
 
-
-    $rpParams.IssuanceTransformRules = Get-ADFSTkIssuanceTransformRules $EntityCategories -EntityId $entityID `
+    $IssuanceTransformRulesDict = Get-ADFSTkIssuanceTransformRules $EntityCategories -EntityId $entityID `
                                                                                  -RequestedAttribute $sp.SPSSODescriptor.AttributeConsumingService.RequestedAttribute `
                                                                                  -RegistrationAuthority $sp.Extensions.RegistrationInfo.registrationAuthority -NameIDPersistent $nameIDPersistent
+
+    $rpParams.IssuanceTransformRules = $IssuanceTransformRulesDict.Values
+
+
 #endregion
 
     if ((Get-ADFSRelyingPartyTrust -Identifier $entityID) -eq $null)
@@ -232,11 +236,49 @@ function Add-ADFSTkSPRelyingPartyTrust {
                 Add-ADFSTkEntityHash -EntityID $entityId
 
                 ### Setting Webtheme ###
-                $theme = $Settings.configuration.AdfsWebTheme
+                $theme = $Settings.configuration.LoginPageCustomization.AdfsWebTheme
                 if ($theme) {
                     Write-ADFSTkVerboseLog "Setting WebTheme ..."
                     Set-AdfsRelyingPartyWebTheme -TargetRelyingPartyName $rpParams.Name -SourceWebThemeName $theme
                 }
+
+                ### Customizie Login Page
+                $showDesc = $true
+                $showAttributes = $true
+                
+                
+                $spname = ($sp.SPSSODescriptor.Extensions.UIInfo.DisplayName | ? {$_.lang -eq "it"}).'#text'
+                if ($spname) {
+                    Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -OrganizationalNameDescriptionText "Accedi a <b>$spname</b>"
+                }
+
+                $text = "<p>Accesso ad una risorsa federata <b>IDEM</b><br>"
+                
+                if ($showDesc) {
+                    $desc = ($sp.SPSSODescriptor.Extensions.UIInfo.Description | ? {$_.lang -eq "it"}).'#text'
+                    if ($desc) {
+                        $text += "<br><i>"
+                        $text += $desc
+                        $text += "</i><br><br>"
+                    }
+                }
+
+                if ($showAttributes) {
+                    $text += "L'accesso a questa risorsa richiede l'invio dei seguenti attributi:<br><ul>"
+                    foreach ($attr in $IssuanceTransformRulesDict.Keys) {
+                        if ($attr -eq "FirstRule") {continue}
+                        $text += "<li>$attr</li>"
+                    }
+                    $text += "</ul><br>Se effettui il login <u>acconsenti al trasferimento di questi dati</u><br><br>"
+                }
+
+                $text += "<a href='https://netsec.univaq.it/index.php?id=3642'>Informazioni</a><br><a href='https://www.univaq.it/section.php?id=573'>Politica sulla Privacy</a><br><a href='mailto:apm@cc.univaq.it'>Serve Aiuto?</a></p>"
+                
+                Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -SignInPageDescriptionText $text
+
+
+
+
 
             }
             catch

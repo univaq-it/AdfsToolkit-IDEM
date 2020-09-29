@@ -231,12 +231,12 @@ if ($AttributesFromStore.Count)
         #endregion
     }
 
-    return $FirstRule.Replace("[ReplaceWithSPNameQualifier]",$EntityId) + $IssuanceTransformRules.Values
+    $IssuanceTransformRules.insert(0,"FirstRule",$FirstRule.Replace("[ReplaceWithSPNameQualifier]",$EntityId))
+    
 }
-else
-{
-    return $IssuanceTransformRules.Values
-}
+
+return $IssuanceTransformRules
+
 #endregion
 }
 # SIG # Begin signature block
