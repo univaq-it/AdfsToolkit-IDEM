@@ -30,6 +30,45 @@ function Add-ADFSTkSPRelyingPartyTrust {
     ### Name, DisplayName
     $Name = (Split-Path $sp.entityID -NoQualifier).TrimStart('/') -split '/' | select -First 1
 
+#region IssuanceAutorizzationRules
+
+    Write-ADFSTkVerboseLog "Setting Authorization Rules..."
+    $optInGroup = $Settings.configuration.optInGroup
+    $optOutGroup = $Settings.configuration.optOutGroup
+
+    $issuanceAuthorizationRules = ""
+    if ($optOutGroup) {
+        $issuanceAuthorizationRules = 
+@"
+    @RuleName = "OPT-Out Group"
+    c:[Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/groupsid", Value == "$optOutGroup", Issuer == "AD AUTHORITY"]
+     => issue(Type = "http://schemas.microsoft.com/authorization/claims/deny", Value = "OptOutGroup");
+
+"@
+    Write-ADFSTkVerboseLog "  Added Opt-Out Group"
+    }
+
+    if ($optInGroup) {
+        $issuanceAuthorizationRules += 
+@"
+    @RuleName = "OPT-In Group"
+    c:[Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/groupsid", Value == "$optInGroup", Issuer == "AD AUTHORITY"]
+     => issue(Type = "http://schemas.microsoft.com/authorization/claims/permit", Value = "true");
+
+"@
+    Write-ADFSTkVerboseLog "  Added Opt-In Group"
+    }
+    else {
+        $issuanceAuthorizationRules += 
+@"
+    @RuleTemplate = "AllowAllAuthzRule"
+     => issue(Type = "http://schemas.microsoft.com/authorization/claims/permit", Value = "true");
+"@
+    }
+
+    $rpParams.IssuanceAuthorizationRules = $issuanceAuthorizationRules
+
+#endregion
 
 #region Token Encryption Certificate 
     Write-ADFSTkVerboseLog "Getting Token Encryption Certificate..."
@@ -148,7 +187,7 @@ function Add-ADFSTkSPRelyingPartyTrust {
     }
 #endregion
 
-#region Get Issuance Transform Rules from Entity Categories
+#region Get Issuance Transform Rules
     Write-ADFSTkVerboseLog "Getting Entity Categories..."
     $EntityCategories = @()
     $EntityCategories += $sp.Extensions.EntityAttributes.Attribute | ? Name -eq "http://macedir.org/entity-category" | select -ExpandProperty AttributeValue | % {
