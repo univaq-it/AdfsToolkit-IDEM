@@ -291,27 +291,32 @@ function Add-ADFSTkSPRelyingPartyTrust {
                     Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -OrganizationalNameDescriptionText "Accedi a <b>$spname</b>"
                 }
 
-                $text = "<p>Accesso ad una risorsa federata <b>IDEM</b><br>"
+                $text = @"
+<p><img src=/adfs/portal/idem.png alt='IDEM' style="height:50px;vertical-align:middle;padding-right:10px">Accesso ad una risorsa federata <b>IDEM</b><br><br></p>
+"@
                 
                 if ($showDesc) {
                     $desc = ($sp.SPSSODescriptor.Extensions.UIInfo.Description | ? {$_.lang -eq "it"}).'#text'
                     if ($desc) {
-                        $text += "<br><i>"
+                        $text += "<p><i>"
                         $text += $desc
-                        $text += "</i><br><br>"
+                        $text += "</i><br><br></p>"
                     }
                 }
 
                 if ($showAttributes) {
-                    $text += "L'accesso a questa risorsa richiede l'invio dei seguenti attributi:<br><ul>"
+                    $text += @"
+<div style="font-size:small;padding-left:8px">L'accesso a questa risorsa richiede l'invio dei seguenti attributi:<br>
+<ul>
+"@
                     foreach ($attr in $IssuanceTransformRulesDict.Keys) {
                         if ($attr -eq "FirstRule") {continue}
                         $text += "<li>$attr</li>"
                     }
-                    $text += "</ul><br>Se effettui il login <u>acconsenti al trasferimento di questi dati</u><br><br>"
+                    $text += "</ul><br>Se effettui il login <u>acconsenti al trasferimento di questi dati</u></div><br>"
                 }
 
-                $text += "<a href='https://netsec.univaq.it/index.php?id=3642'>Informazioni</a><br><a href='https://www.univaq.it/section.php?id=573'>Politica sulla Privacy</a><br><a href='mailto:apm@cc.univaq.it'>Serve Aiuto?</a></p>"
+                $text += "<p><a href='https://netsec.univaq.it/index.php?id=3642'>Informazioni</a><br><a href='https://www.univaq.it/section.php?id=573'>Politica sulla Privacy</a><br><a href='mailto:apm@cc.univaq.it'>Serve Aiuto?</a></p>"
                 
                 Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -SignInPageDescriptionText $text
 
