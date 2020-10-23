@@ -253,7 +253,7 @@ function Add-ADFSTkSPRelyingPartyTrust {
             Until ((Get-ADFSRelyingPartyTrust -Name "$NamePrefix $NewName") -eq $null)
 
             $Name = $NewName
-            $NameWithPrefix = "$NamePrefix $Name"
+            $NameWithPrefix = "$NamePrefix$Sep$Name"
             Write-ADFSTkVerboseLog "A RelyingPartyTrust already exist with the same name. Changing name to `'$NameWithPrefix`'..."
         }
 
