@@ -291,35 +291,50 @@ function Add-ADFSTkSPRelyingPartyTrust {
                     Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -OrganizationalNameDescriptionText "Accedi a <b>$spname</b>"
                 }
 
-                $text = @"
-<p><img src=/adfs/portal/idem.png alt='IDEM' style="height:50px;vertical-align:middle;padding-right:10px">Accesso ad una risorsa federata <b>IDEM</b><br><br></p>
-"@
-                
-                if ($showDesc) {
-                    $desc = ($sp.SPSSODescriptor.Extensions.UIInfo.Description | ? {$_.lang -eq "it"}).'#text'
-                    if ($desc) {
-                        $text += "<p><i>"
-                        $text += $desc
-                        $text += "</i><br><br></p>"
-                    }
+                $spname_en = ($sp.SPSSODescriptor.Extensions.UIInfo.DisplayName | ? {$_.lang -eq "en"}).'#text'
+                if ($spname_en) {
+                    Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -Locale "en" -OrganizationalNameDescriptionText "Login to <b>$spname_en</b>"
                 }
 
-                if ($showAttributes) {
-                    $text += @"
+
+                $baseText = @"
+<p><img src=/adfs/portal/idem.png alt='IDEM' style="height:50px;vertical-align:middle;padding-right:10px">Accesso ad una risorsa federata <b>IDEM</b><br><br></p>
+<p><i>[ReplaceWithDESCRIPTION]</i><br><br></p>
 <div style="font-size:small;padding-left:8px">L'accesso a questa risorsa richiede l'invio dei seguenti attributi:<br>
 <ul>
+[ReplaceWithATTRIBUTELIST]
+</ul><br>Se effettui il login <u>acconsenti al trasferimento di questi dati</u></div><br>
+<p><a href='https://netsec.univaq.it/index.php?id=3642'>Informazioni</a><br>
+<a href='https://www.univaq.it/section.php?id=573'>Politica sulla Privacy</a><br>
+<a href='mailto:apm@cc.univaq.it'>Serve Aiuto?</a></p>
 "@
-                    foreach ($attr in $IssuanceTransformRulesDict.Keys) {
-                        if ($attr -eq "FirstRule") {continue}
-                        $text += "<li>$attr</li>"
-                    }
-                    $text += "</ul><br>Se effettui il login <u>acconsenti al trasferimento di questi dati</u></div><br>"
-                }
-
-                $text += "<p><a href='https://netsec.univaq.it/index.php?id=3642'>Informazioni</a><br><a href='https://www.univaq.it/section.php?id=573'>Politica sulla Privacy</a><br><a href='mailto:apm@cc.univaq.it'>Serve Aiuto?</a></p>"
                 
-                Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -SignInPageDescriptionText $text
+                $baseText_en = @"
+<p><img src=/adfs/portal/idem.png alt='IDEM' style="height:50px;vertical-align:middle;padding-right:10px">Login to <b>IDEM</b> federated resource<br><br></p>
+<p><i>[ReplaceWithDESCRIPTION]</i><br><br></p>
+<div style="font-size:small;padding-left:8px">Access to this resource requires submission of the following attributes:<br>
+<ul>
+[ReplaceWithATTRIBUTELIST]
+</ul><br>If you log in, <u>you agree to the transfer of this data</u></div><br>
+<p><a href='https://netsec.univaq.it/index.php?id=3642'>More Info</a><br>
+<a href='https://www.univaq.it/section.php?id=573'>Privacy Policy</a><br>
+<a href='mailto:apm@cc.univaq.it'>Need Help?</a></p>
+"@
 
+
+                $desc = ($sp.SPSSODescriptor.Extensions.UIInfo.Description | ? {$_.lang -eq "it"}).'#text'
+                $desc_en = ($sp.SPSSODescriptor.Extensions.UIInfo.Description | ? {$_.lang -eq "en"}).'#text'
+
+                $attributeList = ""
+                foreach ($attr in $IssuanceTransformRulesDict.Keys) {
+                    if ($attr -eq "FirstRule") {continue}
+                    $attributeList += "<li>$attr</li>"
+                }
+                
+                $text = $baseText.Replace("[ReplaceWithDESCRIPTION]",$desc).Replace("[ReplaceWithATTRIBUTELIST]",$attributeList)
+                $text_en = $baseText_en.Replace("[ReplaceWithDESCRIPTION]",$desc_en).Replace("[ReplaceWithATTRIBUTELIST]",$attributeList)
+                Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -SignInPageDescriptionText $text
+                Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -Locale "en" -SignInPageDescriptionText $text_en
 
 
 
