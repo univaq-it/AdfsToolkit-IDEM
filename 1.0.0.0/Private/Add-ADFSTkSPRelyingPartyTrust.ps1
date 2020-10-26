@@ -250,7 +250,7 @@ function Add-ADFSTkSPRelyingPartyTrust {
                 $n++
                 $NewName = "$Name ($n)"
             }
-            Until ((Get-ADFSRelyingPartyTrust -Name "$NamePrefix $NewName") -eq $null)
+            Until ((Get-ADFSRelyingPartyTrust -Name "$NamePrefix$Sep$NewName") -eq $null)
 
             $Name = $NewName
             $NameWithPrefix = "$NamePrefix$Sep$Name"
