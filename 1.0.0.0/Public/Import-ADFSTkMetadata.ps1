@@ -121,7 +121,6 @@ function Import-ADFSTkMetadata
     #endregion
 
 
-
     #region Getting Metadata
 
     #Cached Metadata file
@@ -247,32 +246,44 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
     }
     #endregion
 
+    #region Verify Sign
+    
     #Verify Metadata Signing Cert
-    Write-ADFSTkVerboseLog "Verifying metadata signing cert..." -EntryType Information
+
+    if ($Settings.configuration.bypassSignVerify -ne $null -and $Settings.configuration.bypassSignVerify -eq 'true' ) {
+        Write-ADFSTkLog "Metadata signature verify skipped in configuration!!"
+    }
+    else {
+        Write-ADFSTkVerboseLog "Verifying metadata signing cert..." -EntryType Information
   
-    Write-ADFSTkVerboseLog "Ensuring SHA256 Signature validation is present..." -EntryType Information
-    Update-SHA256AlgXmlDSigSupport
+        Write-ADFSTkVerboseLog "Ensuring SHA256 Signature validation is present..." -EntryType Information
+        Update-SHA256AlgXmlDSigSupport
 
 
-    if (Verify-ADFSTkSigningCert $MetadataXML.EntitiesDescriptor.Signature.KeyInfo.X509Data.X509Certificate)
-    {
-        Write-ADFSTkVerboseLog "Successfully verified metadata signing cert!" -EntryType Information
+        if (Verify-ADFSTkSigningCert $MetadataXML.EntitiesDescriptor.Signature.KeyInfo.X509Data.X509Certificate)
+        {
+            Write-ADFSTkVerboseLog "Successfully verified metadata signing cert!" -EntryType Information
+        }
+        else
+        {
+            Write-ADFSTkLog "Metadata signing cert is incorrect! Please check metadata URL or signature fingerprint in config." -MajorFault
+        }
+
+        #Verify Metadata Signature
+        Write-ADFSTkVerboseLog "Verifying metadata signature..." -EntryType Information
+        if (Verify-ADFSTkMetadataSignature $MetadataXML)
+        {
+            Write-ADFSTkVerboseLog "Successfully verified metadata signature!" -EntryType Information
+        }
+        else
+        {
+            Write-ADFSTkLog "Metadata signature test did not pass. Aborting!" -MajorFault
+        }
     }
-    else
-    {
-        Write-ADFSTkLog "Metadata signing cert is incorrect! Please check metadata URL or signature fingerprint in config." -MajorFault
-    }
+    #endregion
 
-    #Verify Metadata Signature
-    #Write-ADFSTkVerboseLog "Verifying metadata signature..." -EntryType Information
-    #if (Verify-ADFSTkMetadataSignature $MetadataXML)
-    #{
-    #    Write-ADFSTkVerboseLog "Successfully verified metadata signature!" -EntryType Information
-    #}
-    #else
-    #{
-    #    Write-ADFSTkLog "Metadata signature test did not pass. Aborting!" -MajorFault
-    #}
+
+
 
     #region Read/Create file with 
 
