@@ -310,15 +310,20 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
         }{
             Write-ADFSTkVerboseLog "Working with `'$($_.EntityID)`'..."
 
-            $SwamidSPs += $_.EntityId
-            if (Check-ADFSTkSPHasChanged $_)
-            {
-                $SwamidSPsToProcess += $_
+            if (Check-ADFSTkSPToInclude $_.EntityID) {
+                $SwamidSPs += $_.EntityId
+                if (Check-ADFSTkSPHasChanged $_)
+                {
+                    $SwamidSPsToProcess += $_
+                }
+                #else
+                #{
+                #    Write-ADFSTkVerboseLog "Skipped due to no changes in metadata..."
+                #}
             }
-            #else
-            #{
-            #    Write-ADFSTkVerboseLog "Skipped due to no changes in metadata..."
-            #}
+            else {
+                Write-ADFSTkVerboseLog "$($_.EntityID) Excluded (or not included) via configuration!"
+            }
 
         }{
             Write-ADFSTkVerboseLog "Done!"
