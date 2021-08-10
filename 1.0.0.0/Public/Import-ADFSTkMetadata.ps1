@@ -341,7 +341,11 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
                         #$ADFSTkModuleBase= Join-Path (get-module ADFSToolkit-IDEM).ModuleBase ADFSToolkit-IDEM.psm1
                         #Write-ADFSTkLog "Working with batch $($i)/$batches with $ADFSTkModuleBase"
                        
-                        Start-Process -WorkingDirectory $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('.\') -FilePath "$env:SystemRoot\system32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList "-NoExit", "-Command & {Get-Module -ListAvailable ADFSToolkit-IDEM |Import-Module ; Import-ADFSTkMetadata -MaxSPAdditions $MaxSPAdditions -CacheTime -1 -ForceUpdate -ConfigFile '$ConfigFile' ;Exit}" -Wait -NoNewWindow
+                        $string = "-Command & {Get-Module -ListAvailable ADFSToolkit-IDEM |Import-Module ; Import-ADFSTkMetadata -MaxSPAdditions $MaxSPAdditions -CacheTime -1 "
+                        if ($ForceUpdate) { $string += "-ForceUpdate " }
+                        if ($VerbosePreference -eq 'Continue') {$string += "-Verbose "}
+                        $string += "-ConfigFile '$ConfigFile' ;Exit}"
+                        Start-Process -WorkingDirectory $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('.\') -FilePath "$env:SystemRoot\system32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList "-NoExit", $string -Wait -NoNewWindow
                         Write-ADFSTkLog "Done!"
                     }
                 }
@@ -476,7 +480,8 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
         else {
             Processes-ADFSTkRelyingPartyTrust $sp
         }
-    }else {
+    }
+    else {
         Write-ADFSTkVerboseLog "Invoked without -ProcessWholeMetadata <no args> , -EntityID <with quoted URL>, nothing to do, exiting"
     }
 
