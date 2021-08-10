@@ -343,6 +343,7 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
                        
                         $string = "-Command & {Get-Module -ListAvailable ADFSToolkit-IDEM |Import-Module ; Import-ADFSTkMetadata -MaxSPAdditions $MaxSPAdditions -CacheTime -1 "
                         if ($ForceUpdate) { $string += "-ForceUpdate " }
+                        if ($AddRemoveOnly) { $string += "-AddRemoveOnly " }
                         if ($VerbosePreference -eq 'Continue') {$string += "-Verbose "}
                         $string += "-ConfigFile '$ConfigFile' ;Exit}"
                         Start-Process -WorkingDirectory $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('.\') -FilePath "$env:SystemRoot\system32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList "-NoExit", $string -Wait -NoNewWindow
