@@ -300,32 +300,7 @@ function Add-ADFSTkSPRelyingPartyTrust {
                     Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -OrganizationalNameDescriptionText "Login to <b>$spname_en</b>"
                 }
 
-
-                $baseText = @"
-<p><img src=/adfs/portal/idem.png alt='IDEM' style="height:50px;vertical-align:middle;padding-right:10px">Accesso ad una risorsa federata <b>IDEM</b><br><br></p>
-<p><i>[ReplaceWithDESCRIPTION]</i><br><br></p>
-<div style="font-size:small;padding-left:8px">L'accesso a questa risorsa richiede l'invio dei seguenti attributi:<br>
-<ul>
-[ReplaceWithATTRIBUTELIST]
-</ul><br>Se effettui il login <u>acconsenti al trasferimento di questi dati</u></div><br>
-<p><a href='https://www.univaq.it/section.php?id=2039'>Informazioni</a><br>
-<a href='https://www.univaq.it/include/utilities/blob.php?item=file&table=allegato&id=4854'>Politica sulla Privacy</a><br>
-<a href='mailto:apm@cc.univaq.it'>Serve Aiuto?</a></p>
-"@
                 
-                $baseText_en = @"
-<p><img src=/adfs/portal/idem.png alt='IDEM' style="height:50px;vertical-align:middle;padding-right:10px">Login to <b>IDEM</b> federated resource<br><br></p>
-<p><i>[ReplaceWithDESCRIPTION]</i><br><br></p>
-<div style="font-size:small;padding-left:8px">Access to this resource requires sending the following attributes:<br>
-<ul>
-[ReplaceWithATTRIBUTELIST]
-</ul><br>If you log in, <u>you agree to the transfer of this data</u></div><br>
-<p><a href='https://www.univaq.it/en/section.php?id=2039'>More Info</a><br>
-<a href='https://www.univaq.it/en/include/utilities/blob.php?item=file&table=allegato&id=4855'>Privacy Policy</a><br>
-<a href='mailto:apm@cc.univaq.it'>Need Help?</a></p>
-"@
-
-
                 $desc = ($sp.SPSSODescriptor.Extensions.UIInfo.Description | ? {$_.lang -eq "it"}).'#text'
                 $desc_en = ($sp.SPSSODescriptor.Extensions.UIInfo.Description | ? {$_.lang -eq "en"}).'#text'
 
@@ -338,12 +313,21 @@ function Add-ADFSTkSPRelyingPartyTrust {
                     $attributeList += "<li>$attr</li>"
                 }
                 
-                $text = $baseText.Replace("[ReplaceWithDESCRIPTION]",$desc).Replace("[ReplaceWithATTRIBUTELIST]",$attributeList)
-                $text_en = $baseText_en.Replace("[ReplaceWithDESCRIPTION]",$desc_en).Replace("[ReplaceWithATTRIBUTELIST]",$attributeList)
-                
-                Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -SignInPageDescriptionText $text_en
-                Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -Locale "it" -SignInPageDescriptionText $text
+                $baseText = ($Settings.configuration.LoginPageCustomization.htmlText | ? {$_.lang -eq "it"}).'#cdata-section'
+                $baseText_en = ($Settings.configuration.LoginPageCustomization.htmlText | ? {$_.lang -eq "en"}).'#cdata-section'
 
+                if ($baseText -and !$baseText_en) {$baseText_en = $baseText}
+                if ($baseText_en -and !$baseText) {$baseText = $baseText_en}
+
+                if ($baseText) {
+                    $text = $baseText.Replace("[ReplaceWithDESCRIPTION]",$desc).Replace("[ReplaceWithATTRIBUTELIST]",$attributeList)
+                    Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -Locale "it" -SignInPageDescriptionText $text
+
+                }
+                if ($baseText_en) {
+                    $text_en = $baseText_en.Replace("[ReplaceWithDESCRIPTION]",$desc_en).Replace("[ReplaceWithATTRIBUTELIST]",$attributeList)
+                    Set-AdfsRelyingPartyWebContent -TargetRelyingPartyName $rpParams.Name -SignInPageDescriptionText $text_en
+                }
                 
             }
             catch
