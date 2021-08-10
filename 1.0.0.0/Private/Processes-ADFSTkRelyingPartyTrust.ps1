@@ -41,6 +41,7 @@ param (
             if ($AddRemoveOnly -eq $true)
             {
                 Write-ADFSTkVerboseLog "Skipping RP due to -AddRemoveOnly switch..."
+                Add-ADFSTkEntityHash -EntityID $sp.EntityID
             }
             elseif (Get-ADFSTkAnswer "'$($sp.EntityID)' already exists. Do you want to update it?")
             {
