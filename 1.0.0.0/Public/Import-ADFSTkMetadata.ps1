@@ -344,14 +344,14 @@ function Import-ADFSTkMetadata
                     {
                         #$ADFSTkModuleBase= Join-Path (get-module ADFSToolkit-IDEM).ModuleBase ADFSToolkit-IDEM.psm1
                         #Write-ADFSTkLog "Working with batch $($i)/$batches with $ADFSTkModuleBase"
-                       
+                        Write-ADFSTkLog "Running batch $($i)/$batches ..."
                         $string = "-Command & {Get-Module -ListAvailable ADFSToolkit-IDEM |Import-Module ; Import-ADFSTkMetadata -MaxSPAdditions $MaxSPAdditions -CacheTime -1 "
                         if ($ForceUpdate) { $string += "-ForceUpdate " }
                         if ($AddRemoveOnly) { $string += "-AddRemoveOnly " }
                         if ($VerbosePreference -eq 'Continue') {$string += "-Verbose "}
                         $string += "-ConfigFile '$ConfigFile' ;Exit}"
                         Start-Process -WorkingDirectory $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('.\') -FilePath "$env:SystemRoot\system32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList "-NoExit", $string -Wait -NoNewWindow
-                        Write-ADFSTkLog "Done!"
+                        Write-ADFSTkVerboseLog "Done!"
                     }
                 }
                 else
