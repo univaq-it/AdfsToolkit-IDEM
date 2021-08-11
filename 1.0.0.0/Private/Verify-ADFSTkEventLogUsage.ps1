@@ -17,7 +17,7 @@ function Verify-ADFSTkEventLogUsage
 
                 # Both LogName and MySource need to be non empty
 
-                if ( [System.Diagnostics.EventLog]::Exists('$MyLogName') -and [System.Diagnostics.EventLog]::SourceExists('$MySource') )
+                if ( [System.Diagnostics.EventLog]::Exists($MyLogName) -and [System.Diagnostics.EventLog]::SourceExists($MySource) )
                     {
                         
                         # This is good, both log and source exist, and logging is activatated
