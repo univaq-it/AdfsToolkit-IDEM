@@ -9,7 +9,7 @@ param (
     {
         if ([string]::IsNullOrEmpty($spHash))
         {
-            $spHash = [System.BitConverter]::ToString($md5.ComputeHash($utf8.GetBytes($sp)))
+            $spHash = [System.BitConverter]::ToString($md5.ComputeHash($utf8.GetBytes($sp.InnerXML)))
         }
     
         $SPHashList.$EntityID = $spHash
