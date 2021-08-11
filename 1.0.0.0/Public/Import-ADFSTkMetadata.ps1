@@ -61,21 +61,30 @@ function Import-ADFSTkMetadata
 
 
     # set appropriate logging via EventLog mechanisms
+    $logOk = $false
 
     if (Verify-ADFSTkEventLogUsage)
     {
         #If we evaluated as true, the eventlog is now set up and we link the WriteADFSTklog to it
         Write-ADFSTkLog   -SetEventLogName $Settings.configuration.logging.LogName -SetEventLogSource $Settings.configuration.logging.Source
+        $logOK = $true
 
     }
-    else {
 
-        # No Event logging is enabled, just this one to a file
-        Throw "Missing eventlog settings in config,"   
+    $logFileName = $Settings.configuration.logging.LogFileName
+    if ($logFileName) {
+        $logFileFullName = Join-Path $Settings.configuration.WorkingPath -ChildPath $logFileName
+        Write-ADFSTkLog -SetLogFilePath $logFileFullName
+        $logOk = $true
+    }
+
+    if (!$logOk) {
+
+        # No Event logging is enabled
+        Throw "Missing eventlog settings in config!"   
     
     }
-    Write-ADFSTkLog -SetLogFilePath c:\ADFSToolkit-IDEM\1.0.0.0\log.txt
-
+    
     #region Get static values from configuration file
     $mypath= $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('.\')
 
