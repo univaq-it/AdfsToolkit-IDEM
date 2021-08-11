@@ -91,7 +91,7 @@ function Import-ADFSTkMetadata
     $myVersion=(get-module ADFSToolkit-IDEM).version.ToString()
 
     Write-ADFSTkVerboseLog "Import-ADFSTkMetadata $myVersion started" -EntryType Information
-    Write-ADFSTkLog "Import-ADFSTkMetadata path: $mypath"
+    Write-ADFSTkLog "Import-ADFSTkMetadata started on $ConfigFile"
 
     #endregion
 
@@ -99,13 +99,13 @@ function Import-ADFSTkMetadata
     #region Get SP Hash
     if ([string]::IsNullOrEmpty($Settings.configuration.SPHashFile))
     {
-         Write-Error -message "Halting: Missing SPHashFile setting from  $ConfigFile" 
+        Write-Error -message "Halting: Missing SPHashFile setting from  $ConfigFile" 
         throw "SPHashFile missing from configfile"
     }
     else
     {
         $SPHashFile = Join-Path $Settings.configuration.WorkingPath -ChildPath $Settings.configuration.CacheDir | Join-Path -ChildPath $Settings.configuration.SPHashFile
-            Write-ADFSTkLog "Setting SPHashFile to: $SPHashFile"
+        Write-ADFSTkVerboseLog "Setting SPHashFile to: $SPHashFile"
     }
 
     if (Test-Path $SPHashFile)
@@ -135,7 +135,7 @@ function Import-ADFSTkMetadata
     #Cached Metadata file
     $CachedMetadataFile = Join-Path $Settings.configuration.WorkingPath -ChildPath $Settings.configuration.CacheDir | Join-Path -ChildPath $Settings.configuration.MetadataCacheFile
     #Join-Path $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('.\cache\') SwamidMetadata.cache.xml
-Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
+    Write-ADFSTkVerboseLog "Setting CachedMetadataFile to: $CachedMetadataFile"
 
 
     if ($LocalMetadataFile)
@@ -204,10 +204,7 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
             
             try
             {
-               
-
-
-            Write-ADFSTkVerboseLog "Downloading From: $metadataURL to file $CachedMetadataFile" -EntryType Information
+                Write-ADFSTkVerboseLog "Downloading From: $metadataURL to file $CachedMetadataFile" -EntryType Information
                
                 #$Metadata = Invoke-WebRequest $metadataURL -OutFile $CachedMetadataFile -PassThru
                 $myUserAgent = "ADFSToolkit-IDEM/"+(get-module ADFSToolkit-IDEM).Version.toString()
@@ -244,14 +241,12 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
 
     if (Test-Path $CachedMetadataFile) {
 
-            $MyFileSize=(Get-Item $CachedMetadataFile).length 
-            if ((Get-Item $CachedMetadataFile).length -gt 0kb) {
-            Write-ADFSTkLog "Metadata file size is $MyFileSize"
-            } else {
-    
+        $MyFileSize=(Get-Item $CachedMetadataFile).length 
+        if ((Get-Item $CachedMetadataFile).length -gt 0kb) {
+            Write-ADFSTkVerboseLog "Metadata file size is $MyFileSize"
+        } else {
             Write-ADFSTkLog "Note: $CachedMetadataFile  is 0 bytes" 
-        
-         }
+        }
     }
     #endregion
 
@@ -297,20 +292,20 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
     #region Read/Create file with 
 
 
-     $RawAllSPs = $MetadataXML.EntitiesDescriptor.EntityDescriptor | ? {$_.SPSSODescriptor -ne $null}
-        $myRawAllSPsCount= $RawALLSps.count
-        Write-ADFSTkVerboseLog "Total number of Sps observed: $myRawAllSPsCount"
+    $RawAllSPs = $MetadataXML.EntitiesDescriptor.EntityDescriptor | ? {$_.SPSSODescriptor -ne $null}
+    $myRawAllSPsCount= $RawALLSps.count
+    Write-ADFSTkVerboseLog "Total number of Sps observed: $myRawAllSPsCount"
 
 
     if ($ProcessWholeMetadata)
     {
-        Write-ADFSTkLog "Processing whole Metadata file..." -EntryType Information
+        Write-ADFSTkVerboseLog "Processing whole Metadata file..." -EntryType Information
    
         $AllSPs = $MetadataXML.EntitiesDescriptor.EntityDescriptor | ? {$_.SPSSODescriptor -ne $null}
 #        $AllSPs = $MetadataXML.EntitiesDescriptor.EntityDescriptor | ? {$_.SPSSODescriptor -ne $null -and $_.Extensions -ne $null}
 
         $myAllSPsCount= $ALLSPs.count
-        Write-ADFSTkVerboseLog "Total number of Sps observed post filter selection: $myAllSPsCount"
+        Write-ADFSTkLog "Total number of Sps observed: $myAllSPsCount"
 
         Write-ADFSTkVerboseLog "Calculating changes..."
         $AllSPs | % {
@@ -337,7 +332,7 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
         }{
             Write-ADFSTkVerboseLog "Done!"
             $n = $SwamidSPsToProcess.Count
-            Write-ADFSTkVerboseLog "Found $n new/changed SPs."
+            Write-ADFSTkLog "Found $n new/changed SPs."
             $batches = [Math]::Ceiling($n/$MaxSPAdditions)
             Write-ADFSTkVerboseLog "Batches count: $batches"
 
@@ -368,14 +363,12 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
             }
 
             # Checking if any Relying Party Trusts show be removed
-            
-           
+       
+            $NamePrefix = $Settings.configuration.MetadataPrefix 
+            $Sep= $Settings.configuration.MetadataPrefixSeparator      
+            $FilterString="$NamePrefix$Sep"
 
-        $NamePrefix = $Settings.configuration.MetadataPrefix 
-        $Sep= $Settings.configuration.MetadataPrefixSeparator      
-        $FilterString="$NamePrefix$Sep"
-
-            Write-ADFSTkLog "Checking for Relying Parties removed from Metadata using Filter:$FilterString* ..." 
+            Write-ADFSTkVerboseLog "Checking for Relying Parties removed from Metadata using Filter:$FilterString* ..." 
 
             $CurrentSwamidSPs = Get-ADFSRelyingPartyTrust | ? {$_.Name -like "$FilterString*"} | select -ExpandProperty Identifier
             if ($CurrentSwamidSPs -eq $null)
@@ -386,41 +379,43 @@ Write-ADFSTkLog "Setting CachedMetadataFile to: $CachedMetadataFile"
             #$RemoveSPs = Compare-ADFSTkObject $CurrentSwamidSPs $SwamidSPs | ? SideIndicator -eq "<=" | select -ExpandProperty InputObject
             $CompareSets = Compare-ADFSTkObject -FirstSet $CurrentSwamidSPs -SecondSet $SwamidSPs -CompareType InFirstSetOnly
 
-            Write-ADFSTkVerboseLog "Found $($CompareSets.MembersInCompareSet) RPs that should be removed."
+            Write-ADFSTkLog "Found $($CompareSets.MembersInCompareSet) RPs that should be removed."
 
-            if ($ForceUpdate)
-            {
+
+## Tolta l'interazione: un SP eliminato dal Metadata viene sempre rimosso !!
+#            if ($ForceUpdate)
+#            {
                 foreach ($rp in $CompareSets.CompareSet)
                 {
                     Write-ADFSTkVerboseLog "Removing `'$($rp)`'..."
                     try 
                     {
                         Remove-ADFSRelyingPartyTrust -TargetIdentifier $rp -Confirm:$false -ErrorAction Stop
-                        Write-ADFSTkVerboseLog "Done!"
+                        Write-ADFSTkLog "Successfully removed `'$($rp)`'!" -EntryType Information
                     }
                     catch
                     {
                         Write-ADFSTkLog "Could not remove `'$($rp)`'! Error: $_" -EntryType Error
                     }
                 }
-            }
-            else
-            {
-                # $RemoveSPs | Get-ADFSTkAnswer -Caption "Do you want to remove Relying Party trust that are not in Swamid metadata?" | Remove-ADFSRelyingPartyTrust -Confirm:$false 
-                foreach ($rp in ($CompareSets.CompareSet | Get-ADFSTkAnswer -Caption "Do you want to remove Relying Party trust that are not in Swamid metadata?"))
-                {
-                    Write-ADFSTkVerboseLog "Removing `'$($rp)`'..."
-                    try 
-                    {
-                        Remove-ADFSRelyingPartyTrust -TargetIdentifier $rp -Confirm:$false -ErrorAction Stop
-                        Write-ADFSTkVerboseLog "Done!"
-                    }
-                    catch
-                    {
-                        Write-ADFSTkLog "Could not remove `'$($rp)`'! Error: $_" -EntryType Error
-                    }
-                }
-            }
+#            }
+#            else
+#            {
+#                # $RemoveSPs | Get-ADFSTkAnswer -Caption "Do you want to remove Relying Party trust that are not in Swamid metadata?" | Remove-ADFSRelyingPartyTrust -Confirm:$false 
+#                foreach ($rp in ($CompareSets.CompareSet | Get-ADFSTkAnswer -Caption "Do you want to remove Relying Party trust that are not in Swamid metadata?"))
+#                {
+#                    Write-ADFSTkVerboseLog "Removing `'$($rp)`'..."
+#                    try 
+#                    {
+#                        Remove-ADFSRelyingPartyTrust -TargetIdentifier $rp -Confirm:$false -ErrorAction Stop
+#                        Write-ADFSTkVerboseLog "Done!"
+#                    }
+#                    catch
+#                    {
+#                        Write-ADFSTkLog "Could not remove `'$($rp)`'! Error: $_" -EntryType Error
+#                    }
+#                }
+#            }
         }
     }
     elseif($PSBoundParameters.ContainsKey('MaxSPAdditions') -and $MaxSPAdditions -gt 0)

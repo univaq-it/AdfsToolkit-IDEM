@@ -25,7 +25,7 @@ function Add-ADFSTkSPRelyingPartyTrust {
 
    
 
-    Write-ADFSTkLog "Adding $entityId as SP..." -EntryType Information
+    Write-ADFSTkVerboseLog "Adding $entityId as SP..." -EntryType Information
 
     ### Name, DisplayName
     $Name = (Split-Path $sp.entityID -NoQualifier).TrimStart('/') -split '/' | select -First 1
