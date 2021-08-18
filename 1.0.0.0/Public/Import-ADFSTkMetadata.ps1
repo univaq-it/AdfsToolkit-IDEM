@@ -128,7 +128,31 @@ function Import-ADFSTkMetadata
     }
 
     #endregion
+    
+    #region Get SP Hash To Exclude
+    $SPHashListToExclude = @{}
 
+    if ($Settings.configuration.SPHashFileToExclude) {
+        $SPHashFileToExclude = Join-Path $Settings.configuration.WorkingPath -ChildPath $Settings.configuration.CacheDir | Join-Path -ChildPath $Settings.configuration.SPHashFileToExclude
+        Write-ADFSTkVerboseLog "Setting SPHashFileToExclude to: $SPHashFileToExclude"
+        if (Test-Path $SPHashFileToExclude) {
+            try 
+            {
+                $SPHashListToExclude = Import-Clixml $SPHashFileToExclude
+            }
+            catch
+            {
+                Write-ADFSTkVerboseLog "Could not import SP Hash File To Exclude!"
+                $SPHashFileToExcludeItem  = Get-ChildItem $SPHashFileToExclude
+                Rename-Item -Path $SPHashFileToExclude -NewName ("{0}_{1}.{2}" -f $SPHashFileToExcludeItem.BaseName, ([guid]::NewGuid()).Guid, $SPHashFileToExcludeItem.Extension)
+            }
+        }
+        else {
+            Write-ADFSTkVerboseLog "SPHashFileToExclude Not Found: ignoring..."
+        }
+    }
+
+    #endregion
 
     #region Getting Metadata
 
@@ -325,9 +349,9 @@ function Import-ADFSTkMetadata
                 #    Write-ADFSTkVerboseLog "Skipped due to no changes in metadata..."
                 #}
             }
-            else {
-                Write-ADFSTkVerboseLog "$($_.EntityID) Excluded (or not included) via configuration!"
-            }
+            #else {
+            #    Write-ADFSTkVerboseLog "$($_.EntityID) Excluded (or not included) via configuration!"
+            #}
 
         }{
             Write-ADFSTkVerboseLog "Done!"
