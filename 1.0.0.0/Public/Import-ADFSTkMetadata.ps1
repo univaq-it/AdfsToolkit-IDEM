@@ -415,6 +415,7 @@ function Import-ADFSTkMetadata
                     try 
                     {
                         Remove-ADFSRelyingPartyTrust -TargetIdentifier $rp -Confirm:$false -ErrorAction Stop
+                        Remove-ADFStkEntityHash $rp
                         Write-ADFSTkLog "Successfully removed `'$($rp)`'!" -EntryType Information
                     }
                     catch
