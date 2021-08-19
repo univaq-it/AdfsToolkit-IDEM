@@ -455,15 +455,14 @@ function Import-ADFSTkMetadata
         $SPsToProcess = @()
         do
         {
-            if (Check-ADFSTkSPHasChanged $AllSPsInMetadata[$i])
-            {
+            if ( (Check-ADFSTkSPToInclude $AllSPsInMetadata[$i].EntityID) -and (Check-ADFSTkSPHasChanged $AllSPsInMetadata[$i])) {
                 $SPsToProcess += $AllSPsInMetadata[$i]
                 $n++
             }
-            else
-            {
-                Write-ADFSTkVerboseLog "Skipped due to no changes in metadata..."
-            }
+            #else
+            #{
+            #    Write-ADFSTkVerboseLog "Skipped due to no changes in metadata..."
+            #}
             $i++
         }
         until ($n -ge $MaxSPAdditions -or $i -ge $m)
