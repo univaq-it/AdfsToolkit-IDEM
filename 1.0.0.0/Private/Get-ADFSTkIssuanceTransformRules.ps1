@@ -95,7 +95,8 @@ if ($EntityId -ne $null -and $IssuanceTransformRulesManualSP.ContainsKey($Entity
 {
     foreach ($Rule in $IssuanceTransformRulesManualSP[$EntityId].Keys) { 
         if ($IssuanceTransformRulesManualSP[$EntityId][$Rule] -ne $null)
-        {                
+        {
+            Write-ADFSTkVerboseLog "--------------- MANUAL: $Rule Aggiunto"
             $IssuanceTransformRules[$Rule] = $IssuanceTransformRulesManualSP[$EntityId][$Rule].Rule.Replace("[ReplaceWithSPNameQualifier]",$EntityId)
             foreach ($Attribute in $IssuanceTransformRulesManualSP[$EntityId][$Rule].Attribute) { 
                 $AttributesFromStore[$Attribute] = $AllAttributes[$Attribute] 
