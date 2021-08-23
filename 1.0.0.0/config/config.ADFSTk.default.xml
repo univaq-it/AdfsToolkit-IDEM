@@ -5,15 +5,21 @@
     <ConfigDir>/config</ConfigDir>
     <CacheDir>/cache</CacheDir>
     <SPHashFile>SPHash.xml</SPHashFile>
+    <!--SPHashFileToExclude>SPHashfileToExclude.xml</SPHashFileToExclude-->
     <MetadataCacheFile>metadata.cached.xml</MetadataCacheFile>
     <LocalRelyingPartyFile>get-ADFSTkLocalManualSPSettings.ps1</LocalRelyingPartyFile>
 
     <MetadataPrefix>A prefix that are added to the Service Provider´s name in AD FS Console</MetadataPrefix>
-    <MetadataPrefixSeparator>:</MetadataPrefixSeparator>
-
+    <MetadataPrefixSeparator>:</MetadataPrefixSeparator> 
+    <LoginPageCustomization>
+        <!--AdfsWebTheme>Do NOT Use in IDEM</AdfsWebTheme-->
+        <!--htmlText lang="it"><![CDATA[<HTML Code>]]></htmlText-->
+        <!--htmlText lang="en"><![CDATA[<HTML Code>]]></htmlText-->
+    </LoginPageCustomization>
     <Logging useEventLog="true">
       <LogName>ADFSToolkit</LogName>
       <Source>Import-ADFSTkMetadata</Source>
+      <LogFileName>log.txt</LogFileName>
     </Logging>   
 
     <metadataURL>The URL to the federated metadata</metadataURL> 
@@ -21,22 +27,24 @@
 	  <claimsProviders>
         <claimsProvider>Active Directory</claimsProvider>
     </claimsProviders>
+    <!--optInGroup>SID-FOR-OPTIN-GROUP</optInGroup-->
+    <!--optOutGroup>SID-FOR-OPTOUT-GROUP</optOutGroup-->
     <staticValues>
-		<o>The name of your institution</o>
+	<o>The name of your institution</o>
         <co>The name of your Country</co>		
         <c>Country Code</c>
-		<schacHomeOrganization>The DNS name of your institution</schacHomeOrganization>
-		<norEduOrgAcronym>The short name of your institution</norEduOrgAcronym>
-		<schacHomeOrganizationType>urn:schac:homeOrganizationType:eu:educationInstitution</schacHomeOrganizationType>
-		<!-- This value is for EU higher education institution, other allowed values are:
-			urn:schac:homeOrganizationType:eu:educationInstitution
-			urn:schac:homeOrganizationType:int:NREN
-			urn:schac:homeOrganizationType:int:universityHospital
-			urn:schac:homeOrganizationType:int:NRENAffiliate
-			urn:schac:homeOrganizationType:int:other
-		-->
-		<ADFSExternalDNS>The DNS name of your ADFS</ADFSExternalDNS>
-	</staticValues>
+	<schacHomeOrganization>The DNS name of your institution</schacHomeOrganization>
+	<norEduOrgAcronym>The short name of your institution</norEduOrgAcronym>
+	<schacHomeOrganizationType>urn:schac:homeOrganizationType:eu:educationInstitution</schacHomeOrganizationType>
+	<!-- This value is for EU higher education institution, other allowed values are:
+	        urn:schac:homeOrganizationType:eu:educationInstitution
+		urn:schac:homeOrganizationType:int:NREN
+		urn:schac:homeOrganizationType:int:universityHospital
+		urn:schac:homeOrganizationType:int:NRENAffiliate
+		urn:schac:homeOrganizationType:int:other
+	-->
+	<ADFSExternalDNS>The DNS name of your ADFS</ADFSExternalDNS>
+    </staticValues>
     <storeConfig>
         <stores>
             <store name="Active Directory" issuer="AD AUTHORITY" type="http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname" order="1" />
@@ -57,8 +65,10 @@
             <attribute type="http://schemas.xmlsoap.org/claims/CommonName" store="Active Directory" name="cn" />
             <attribute type="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" store="Active Directory" name="name" />
             <attribute type="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" store="Active Directory" name="mail" />
-           
-           <!-- eduPersonAffilation and eduPersonScopedAffiliation settings
+            <attribute type="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/seed-id" store="Active Directory" name="extensionAttribute15" />           
+            <!-- ESI Code for EduGain Erasmus+ -->
+            <attribute type="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/esi-code" store="Active Directory" name="employeeID" />
+            <!-- eduPersonAffilation and eduPersonScopedAffiliation settings
                 Scenario A. Static assignement with all active users declared 'member' (default)
                 Scenario B. Dynamic assignment based on GroupSID
                 Scenario C. Attribute ssignment based on presence of eduPersonAffiliation in directory
