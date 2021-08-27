@@ -9,7 +9,7 @@ La versione attuale di AdfsToolkit-IDEM è basata sul codice della versione 1.0.
 E' in valutazione la riscrittura di una nova versione di questo modulo basato su AdfsToolkit v2, ma al momento non c'è una data prevista.
 
 # Installazione ed utilizzo
-E' necessario scaricare il codice del modulo e copiarlo nella cartella *c:\Program Files\WindowsPowerShell\Modules\ADFSToolkit-IDEM\* di uno dei server ADFS 
+E' necessario scaricare il codice del modulo e copiarlo nella cartella *c:\Program Files\WindowsPowerShell\Modules\ADFSToolkit-IDEM\\* di uno dei server ADFS 
 
 **TODO**: caricare il modulo su PSGallery
 
