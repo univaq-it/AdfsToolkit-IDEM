@@ -57,7 +57,7 @@ Nella configurazione va sempre indicato il SID dei gruppi e vengono correttament
 
 # Requisiti
 Il codice è stato utilizzato solo *Windows Server 2019 AD FS*. Dovrebbe funzionare correttamente anche sulla versione 2016, ma non è mai stato testato.  
-l'installazione standard di ADFS basata su *Windows Internal Database* (WID) supporta fino ad un massimo di 100 RelyingPartyTrust: per usarlo con la federazione IDEM (e ancor più con EduGAIN) è necessario l'utilizzo di un database SQL Server esterno.  
+L'installazione standard di ADFS basata su *Windows Internal Database* (WID) supporta fino ad un massimo di 100 RelyingPartyTrust: per usarlo con la federazione IDEM (e ancor più con EduGAIN) è necessario l'utilizzo di un database SQL Server esterno.  
 Per girare richiede almeno Powershell 5.1, ma questa è di default su Server 2019.  
 Per poter modificare la configurazione deve essere necessariamente eseguito su uno dei server ADFS e con i privilegi di amministratore.  
 
