@@ -42,6 +42,7 @@ Nella pagina di accesso viene sempre visualizzato il nome dell'SP a cui si sta a
 Nella condifurazione è possibile definire del codice HTML da aggiungere, sempre in doppia lingua. All'interno di questo codice è possibile utilizzare dei tag specifici ed in particolare:
 * **[ReplaceWithDESCRIPTION]** : viene sostituito con la descrizione del SP riportata nel metadata (sempre in italiano e in inglese)
 * **[ReplaceWithATTRIBUTELIST]** : viene sostituito con l'elenco degli attributi che verranno rilasciati al login
+
 Modificare la pagina di accesso è necessario per rispettare quanto previsto dalle specifiche tecniche di IDEM, in particolare la presenza del logo della federazione, i link alla politica sulla privacy, al supporto, ecc.  
 Inoltre, ADFS non prevede una pagina di consenso per l'invio dei dati dopo il login, per questo è utile presentare prima l'elenco degli attributi che verranno inviati.
 
