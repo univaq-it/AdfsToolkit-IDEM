@@ -5,12 +5,11 @@ ADFS Toolkit per la federazione Italiana IDEM di GARR
 Questo modulo powershell gestisce l'importazione in Microsoft ADFS di metadata di federazioni SAML 2.0 ed è esplicitamente pensato per l'utilizzo di un server ADFS come Identity provider per la Federazione IDEM di GARR.
 Si tratta di una versione modificata di [AdfsToolkit](https://github.com/fedtools/adfstoolkit) e agli autori di questo progetto va tutto il merito per l'ottimo lavoro svolto.
 
-La versione attuale di AdfsToolkit-IDEM è basata sul codice della versione 1.0.0.0 di AdfsToolkit. Nella loro versione attuale (2.0.1) molte cose sono cambiate, ma praticamente tutte le modifiche necessaria al funzionamento secondo le prescrizioni di IDEM sono ancora necessarie.
+La versione attuale di AdfsToolkit-IDEM è basata sul codice della versione 1.0.0.0 di AdfsToolkit. Nella loro versione attuale (2.0.1) molte cose sono cambiate, ma praticamente tutte le modifiche necessarie al funzionamento secondo le prescrizioni di IDEM sono ancora necessarie.  
 E' in valutazione la riscrittura di una nova versione di questo modulo basato su AdfsToolkit v2, ma al momento non c'è una data prevista.
 
 # Installazione ed utilizzo
-E' necessario scaricare il codice del modulo e copiarlo nella cartella *c:\Program Files\WindowsPowerShell\Modules\ADFSToolkit-IDEM\\* di uno dei server ADFS 
-
+E' necessario scaricare il codice del modulo e copiarlo nella cartella *c:\Program Files\WindowsPowerShell\Modules\ADFSToolkit-IDEM\\* di uno dei server ADFS.   
 **TODO**: caricare il modulo su PSGallery
 
 Da una sessione powershell da amministratore eseguire:
