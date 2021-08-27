@@ -53,6 +53,7 @@ L'opzione resta disponibile solo per l'eventuale utilizzo con altre federazioni 
 E' possilile limitare l'accesso alle risorse federate utilizzando specifici gruppi:
 * se viene definito in configurazione il valore **optInGroup** solo gli utenti membri di questo gruppo avranno accesso
 * se viene definito in configurazione il valore **optOutGroup** ai membri di questo gruppo verrà sempre negato l'accesso
+
 Nella configurazione va sempre indicato il SID dei gruppi e vengono correttamente gestiti i "nested group"
  
 
