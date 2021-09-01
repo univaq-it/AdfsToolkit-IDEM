@@ -50,7 +50,7 @@ Lo script prevede anche la possibilità di impostare un tema specifico a tutti g
 L'opzione resta disponibile solo per l'eventuale utilizzo con altre federazioni con numeri decisamente più ristretti.
 
 ### Gruppi Opt-IN e Opt-OUT
-E' possilile limitare l'accesso alle risorse federate utilizzando specifici gruppi:
+E' possibile limitare l'accesso alle risorse federate utilizzando specifici gruppi:
 * se viene definito in configurazione il valore **optInGroup** solo gli utenti membri di questo gruppo avranno accesso
 * se viene definito in configurazione il valore **optOutGroup** ai membri di questo gruppo verrà sempre negato l'accesso
 
