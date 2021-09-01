@@ -39,7 +39,7 @@ Con l'attuale politica, che limita il rilascio degli attributi solo a quelli esp
 
 ### Personalizzazione pagina di Login
 Nella pagina di accesso viene sempre visualizzato il nome dell'SP a cui si sta accedendo con il messaggio "Accedi a" in italiano oppure "Login to" in inglese.  
-Nella condifurazione è possibile definire del codice HTML da aggiungere, sempre in doppia lingua. All'interno di questo codice è possibile utilizzare dei tag specifici ed in particolare:
+Nella configurazione è possibile definire del codice HTML da aggiungere, sempre in doppia lingua. All'interno di questo codice è possibile utilizzare dei tag specifici ed in particolare:
 * **[ReplaceWithDESCRIPTION]** : viene sostituito con la descrizione del SP riportata nel metadata (sempre in italiano e in inglese)
 * **[ReplaceWithATTRIBUTELIST]** : viene sostituito con l'elenco degli attributi che verranno rilasciati al login
 
@@ -56,6 +56,17 @@ E' possilile limitare l'accesso alle risorse federate utilizzando specifici grup
 
 Nella configurazione va sempre indicato il SID dei gruppi e vengono correttamente gestiti i "nested group"
  
+### Parametro ForceUpdate
+Il parametro --ForceUpdate del comando Import-ADFSTkMetadata ha un funzionamento leggermente diverso dalla versione originale.  
+Quando nel metadata viene trovatu un SP nuovo o modificato rispetto all'esecuzione precedente, viene verificata l'esistenza dell'entityID nel database ADFS:
+* Se l'entityID non è presente, il RelyingPartyTrust corrispondente viene creato.
+* Se l'entityID è presente e il nome del RelyingPartyTrust inizia con il prefisso dell'aggregato, questo viene aggiornato con le configurazioni attuali.
+* Se l'entityID è presente, il nome del RelyingPartyTrust non inizia con il prefisso dell'aggregato ma è passato il parametro --ForceUpdate, il RelyingPartyTrust viene aggiornato con le configurazioni attuali.
+* Se l'entityID è presente, il nome del RelyingPartyTrust non inizia con il prefisso dell'aggregato e non viene passato il parametro --ForceUpdate, il RelyingPartyTrust non viene modificato.
+
+Il parametro --ForceUpdate è utilizzato di default, per garantire la maggiore aderenza possibile alle configurazioni presenti nei metadata. Rimuoverlo può essere utile se si intende definire manualmente un RelyingPartyTrust per una delle entityID presenti nel metadata per evitare che questo venga sovrasctritto.  
+Il parametro --AddRemoveOnly disponibile in adfstoolkit non è più utilizzato.
+
 
 # Requisiti
 Il codice è stato utilizzato solo *Windows Server 2019 AD FS*. Dovrebbe funzionare correttamente anche sulla versione 2016, ma non è mai stato testato.  
@@ -64,3 +75,22 @@ Per girare richiede almeno Powershell 5.1, ma questa è di default su Server 201
 Per poter modificare la configurazione deve essere necessariamente eseguito su uno dei server ADFS e con i privilegi di amministratore.  
 
 # Note
+### Configurazione per EduGAIN
+Il modo più semplice per l'adesione a EduGAIN è utilizzare una sola configurazione per importare il metadata **edugain2idem-metadata-sha256.xml**.  
+Qualora però si volessero distinguere i RelyingPartyTrust che afferiscono ad IDEM da quelli di EduGAIN, è possibile:
+* Attivare una configurazione per IDEM che importa il metadata **idem-metadata-sha256.xml**
+* Attivare una seconda configurazione per il metadata **edugain2idem-metadata-sha256.xml** e utilizzare in questa l'opzione **SPHashFileToExclude** per escludere le entityID già trattate dalla prima  
+
+In questo modo è possibile, ad esempio, utilizzare codice HTML diverso nelle due configurazioni per includere nella seconda il logo di EduGAIN insieme a quello di IDEM.  
+Inoltre, aiuta a distingure a colpo d'occhio la provenienza di un RelyingPartyTrust grazie ad un prefisso diverso.
+
+### Erasmus Plus e ESI
+Per l'accesso ai servizi Erasmus Plus è necessario il rilascio dello **European Student Identifier** attraverso l'attributo **schacPersonalUniqueCode** ([riferimenti](https://wiki.idem.garr.it/wiki/Erasmus_Plus_e_ESI)).  
+Lo script è in grado di generare questo attributo utilizzando nel campo "code" un valore presente in ActiveDirectory (nella configurazione di default è utilizzato "employeeID").  
+Siccome, però, questo attributo non è definito tra quelli di IDEM e tenendo conto che si tratta di una valorizzazione molto specifica, non è stato aggiunto agli attributi riconosciuti e rilasciati di default a tutti gli SP che lo richiedono.  
+Per rilasciarlo al proxy MyAcademicID, è necessario inserire una regola specifica nel file *get-ADFSTkLocalManualSpSettings.ps1*
+
+# Contatti
+Per ogni informazione, commento o suggerimento in merito a questo modulo è possibile contattare l'autore Fabrizio Carusi (fabrizio.carusi@univaq.it).  
+  
+  
